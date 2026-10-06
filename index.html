@@ -1,0 +1,1598 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI60 Growth Engine — NxtWave Workshop</title>
+<style>
+  /* ── RESET & BASE ─────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:        #0d0f1a;
+    --surface:   #141726;
+    --card:      #1a1f35;
+    --border:    #252a45;
+    --accent:    #6c63ff;
+    --accent2:   #00d4aa;
+    --accent3:   #ff6b6b;
+    --accent4:   #ffd166;
+    --text:      #e8eaf6;
+    --muted:     #8892b0;
+    --success:   #00d4aa;
+    --warning:   #ffd166;
+    --danger:    #ff6b6b;
+    --radius:    12px;
+    --radius-lg: 20px;
+    --shadow:    0 4px 24px rgba(0,0,0,0.4);
+    --transition: 0.2s ease;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  img { max-width: 100%; }
+
+  /* ── SCROLLBAR ────────────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── NAV ─────────────────────────────────────────────────────── */
+  #main-nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(13,15,26,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+  }
+  .nav-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: flex; align-items: center; gap: 8px;
+    height: 56px;
+  }
+  .nav-logo {
+    font-weight: 800; font-size: 16px; color: var(--accent);
+    margin-right: auto; white-space: nowrap; letter-spacing: -0.3px;
+  }
+  .nav-logo span { color: var(--accent2); }
+  .nav-tabs { display: flex; gap: 2px; overflow-x: auto; }
+  .nav-tab {
+    padding: 6px 14px; border-radius: 8px; font-size: 13px;
+    font-weight: 500; color: var(--muted); cursor: pointer;
+    border: none; background: none; white-space: nowrap;
+    transition: var(--transition);
+  }
+  .nav-tab:hover { color: var(--text); background: var(--border); }
+  .nav-tab.active { color: var(--accent); background: rgba(108,99,255,0.12); }
+
+  /* hamburger */
+  .nav-hamburger {
+    display: none; background: none; border: none;
+    color: var(--text); font-size: 22px; cursor: pointer; padding: 4px;
+  }
+
+  /* ── SECTIONS ─────────────────────────────────────────────────── */
+  .section {
+    display: none;
+    max-width: 900px; margin: 0 auto;
+    padding: 40px 20px 60px;
+    animation: fadeIn 0.3s ease;
+  }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+  /* ── HERO ─────────────────────────────────────────────────────── */
+  .hero {
+    text-align: center; padding: 48px 0 32px;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(108,99,255,0.12); border: 1px solid rgba(108,99,255,0.3);
+    color: var(--accent); font-size: 12px; font-weight: 600;
+    padding: 4px 12px; border-radius: 100px; margin-bottom: 20px;
+    letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  .hero h1 {
+    font-size: clamp(28px, 5vw, 48px); font-weight: 800;
+    line-height: 1.15; margin-bottom: 16px; letter-spacing: -1px;
+  }
+  .hero h1 .grad {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero p { color: var(--muted); font-size: 17px; max-width: 560px; margin: 0 auto 28px; }
+  .hero-meta {
+    display: flex; justify-content: center; gap: 24px; flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+  .hero-pill {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--card); border: 1px solid var(--border);
+    padding: 6px 14px; border-radius: 100px; font-size: 13px; color: var(--muted);
+  }
+  .hero-pill .dot { width:8px; height:8px; border-radius:50%; background:var(--success); }
+
+  /* ── CARDS ────────────────────────────────────────────────────── */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 28px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-size: 15px; font-weight: 700; color: var(--text);
+    margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+  }
+  .card-title .icon { font-size: 18px; }
+
+  /* ── BUTTONS ──────────────────────────────────────────────────── */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    padding: 11px 22px; border-radius: 10px; font-size: 14px; font-weight: 600;
+    cursor: pointer; border: none; transition: var(--transition);
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #8b5cf6);
+    color: #fff;
+  }
+  .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(108,99,255,0.35); }
+  .btn-secondary {
+    background: var(--border); color: var(--text);
+  }
+  .btn-secondary:hover { background: #2e3454; }
+  .btn-success {
+    background: linear-gradient(135deg, var(--accent2), #00b894);
+    color: #fff;
+  }
+  .btn-success:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn-wa {
+    background: linear-gradient(135deg, #25d366, #128c7e);
+    color: #fff;
+  }
+  .btn-wa:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn-outline {
+    background: transparent; color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  .btn-outline:hover { background: rgba(108,99,255,0.08); }
+  .btn-sm { padding: 7px 14px; font-size: 13px; }
+  .btn-full { width: 100%; }
+  .btn-group { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* ── FORMS ────────────────────────────────────────────────────── */
+  .form-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label { font-size: 13px; font-weight: 600; color: var(--muted); }
+  input, select {
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); border-radius: 10px;
+    padding: 11px 14px; font-size: 14px; font-family: inherit;
+    transition: var(--transition); outline: none;
+  }
+  input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(108,99,255,0.15); }
+  input.error, select.error { border-color: var(--danger); }
+  .form-error { color: var(--danger); font-size: 12px; margin-top: 2px; display: none; }
+  .form-error.show { display: block; }
+  select option { background: var(--surface); }
+
+  /* ── PROGRESS BAR ─────────────────────────────────────────────── */
+  .progress-wrap {
+    background: var(--border); border-radius: 100px; overflow: hidden;
+    height: 10px; margin: 8px 0;
+  }
+  .progress-bar {
+    height: 100%; border-radius: 100px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.6s cubic-bezier(.4,0,.2,1);
+  }
+  .progress-label {
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: var(--muted); margin-top: 4px;
+  }
+
+  /* ── REFERRAL CODE ────────────────────────────────────────────── */
+  .ref-code-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 18px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .ref-code {
+    font-family: 'Courier New', monospace; font-size: 18px; font-weight: 700;
+    color: var(--accent); letter-spacing: 1px;
+  }
+  .ref-url-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 14px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    margin-bottom: 14px;
+  }
+  .ref-url-text {
+    font-size: 12px; color: var(--muted); word-break: break-all; flex: 1;
+  }
+
+  /* ── REWARD STEPS ─────────────────────────────────────────────── */
+  .reward-steps { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+  .reward-item {
+    display: flex; align-items: flex-start; gap: 14px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px;
+  }
+  .reward-badge {
+    min-width: 36px; height: 36px; border-radius: 8px;
+    background: rgba(108,99,255,0.15); display: flex; align-items: center;
+    justify-content: center; font-size: 16px;
+  }
+  .reward-badge.achieved { background: rgba(0,212,170,0.15); }
+  .reward-info .reward-title { font-weight: 600; font-size: 14px; }
+  .reward-info .reward-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* ── SHARE ASSISTANT ──────────────────────────────────────────── */
+  .share-selects { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .message-output {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px;
+    font-size: 14px; line-height: 1.7; color: var(--text);
+    min-height: 100px; white-space: pre-wrap; word-break: break-word;
+    margin-bottom: 14px;
+  }
+  .message-placeholder { color: var(--muted); font-style: italic; }
+
+  /* ── LEADERBOARD ──────────────────────────────────────────────── */
+  .lb-table { width: 100%; border-collapse: collapse; }
+  .lb-table th {
+    text-align: left; padding: 10px 14px; font-size: 12px;
+    color: var(--muted); font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.5px; border-bottom: 1px solid var(--border);
+  }
+  .lb-table td { padding: 12px 14px; border-bottom: 1px solid rgba(37,42,69,0.5); font-size: 14px; }
+  .lb-table tr:last-child td { border-bottom: none; }
+  .lb-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .rank-badge {
+    width: 28px; height: 28px; border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+  }
+  .rank-1 { background: rgba(255,209,102,0.2); color: var(--accent4); }
+  .rank-2 { background: rgba(200,200,200,0.15); color: #c0c0c0; }
+  .rank-3 { background: rgba(205,127,50,0.2); color: #cd7f32; }
+  .rank-other { background: var(--border); color: var(--muted); }
+
+  /* ── STAT CARDS ───────────────────────────────────────────────── */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px,1fr)); gap: 14px; margin-bottom: 20px; }
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px;
+  }
+  .stat-label { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .stat-value { font-size: 26px; font-weight: 800; color: var(--text); line-height: 1; }
+  .stat-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .stat-accent { color: var(--accent); }
+  .stat-success { color: var(--success); }
+  .stat-warning { color: var(--warning); }
+
+  /* ── FUNNEL ───────────────────────────────────────────────────── */
+  .funnel { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .funnel-step {
+    width: 100%; max-width: 500px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 20px;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 2px; position: relative;
+  }
+  .funnel-step .f-label { font-size: 14px; font-weight: 600; }
+  .funnel-step .f-val { font-size: 18px; font-weight: 800; color: var(--accent); }
+  .funnel-arrow { color: var(--muted); font-size: 18px; line-height: 1; margin-bottom: 2px; }
+
+  /* ── CHANNEL BARS ─────────────────────────────────────────────── */
+  .channel-bars { display: flex; flex-direction: column; gap: 12px; }
+  .channel-row { display: flex; flex-direction: column; gap: 4px; }
+  .channel-top { display: flex; justify-content: space-between; font-size: 13px; }
+  .channel-name { font-weight: 600; }
+  .channel-count { color: var(--muted); }
+
+  /* ── GROWTH SIMULATOR ─────────────────────────────────────────── */
+  .sim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .sim-control { display: flex; flex-direction: column; gap: 6px; }
+  .sim-label { font-size: 13px; font-weight: 600; color: var(--muted); }
+  .sim-row { display: flex; align-items: center; gap: 10px; }
+  .sim-range { flex: 1; -webkit-appearance: none; height: 8px; background: var(--border); border-radius: 4px; outline: none; cursor: pointer; }
+  .sim-range::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--accent); cursor: pointer; border: 2px solid var(--bg);
+    box-shadow: 0 0 0 3px rgba(108,99,255,0.25);
+    transition: var(--transition);
+  }
+  .sim-range::-webkit-slider-thumb:hover { transform: scale(1.25); box-shadow: 0 0 0 5px rgba(108,99,255,0.2); }
+  .sim-range::-moz-range-thumb {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--accent); cursor: pointer; border: 2px solid var(--bg);
+    box-shadow: 0 0 0 3px rgba(108,99,255,0.25);
+  }
+  .sim-range::-moz-range-track { height: 8px; background: var(--border); border-radius: 4px; }
+  .sim-num-input {
+    width: 68px; text-align: center; padding: 7px 10px;
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text); border-radius: 8px; font-size: 14px; font-weight: 700;
+    font-family: inherit; outline: none;
+  }
+  .sim-num-input:focus { border-color: var(--accent); }
+  .sim-result {
+    text-align: center; padding: 32px 24px;
+    background: linear-gradient(135deg, rgba(108,99,255,0.08), rgba(0,212,170,0.06));
+    border: 1px solid var(--border); border-radius: var(--radius-lg);
+    margin-top: 24px;
+  }
+  .sim-result-label { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .sim-result-num { font-size: 72px; font-weight: 900; line-height: 1; letter-spacing: -3px; }
+  .sim-result-num.on-target { color: var(--success); }
+  .sim-result-num.off-target { color: var(--danger); }
+  .sim-result-num.over-target { color: var(--accent4); }
+  .sim-status { font-size: 16px; font-weight: 700; margin-top: 8px; }
+  .sim-breakdown { margin-top: 20px; display: flex; flex-direction: column; gap: 6px; }
+  .sim-line {
+    display: flex; justify-content: space-between;
+    font-size: 13px; padding: 8px 14px;
+    background: var(--surface); border-radius: 8px;
+  }
+  .sim-line span:last-child { font-weight: 700; color: var(--accent2); }
+  .sim-note {
+    background: rgba(108,99,255,0.06); border: 1px solid rgba(108,99,255,0.2);
+    border-radius: 10px; padding: 14px; font-size: 13px; color: var(--muted);
+    margin-top: 16px; line-height: 1.6;
+  }
+
+  /* ── TIMELINE ─────────────────────────────────────────────────── */
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .timeline-item {
+    display: flex; gap: 18px; position: relative;
+  }
+  .timeline-item:not(:last-child)::before {
+    content: ''; position: absolute;
+    left: 18px; top: 42px; bottom: 0;
+    width: 2px; background: var(--border);
+  }
+  .tl-icon {
+    min-width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; margin-top: 2px; flex-shrink: 0;
+  }
+  .tl-content { padding: 0 0 28px; }
+  .tl-days { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
+  .tl-phase { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+  .tl-desc { font-size: 14px; color: var(--muted); }
+
+  /* ── DEMO BADGE ───────────────────────────────────────────────── */
+  .demo-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(255,209,102,0.12); border: 1px solid rgba(255,209,102,0.3);
+    color: var(--accent4); font-size: 11px; font-weight: 700;
+    padding: 3px 10px; border-radius: 100px; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-left: 10px;
+  }
+  .demo-bar {
+    background: rgba(255,209,102,0.08); border: 1px solid rgba(255,209,102,0.2);
+    border-radius: 8px; padding: 8px 14px;
+    font-size: 12px; color: var(--accent4);
+    margin-bottom: 16px; display: flex; align-items: center; gap: 6px;
+  }
+
+  /* ── SUCCESS STATE ────────────────────────────────────────────── */
+  .success-banner {
+    background: linear-gradient(135deg, rgba(0,212,170,0.12), rgba(0,184,148,0.06));
+    border: 1px solid rgba(0,212,170,0.3);
+    border-radius: var(--radius-lg); padding: 28px; text-align: center;
+    margin-bottom: 24px;
+  }
+  .success-icon { font-size: 48px; margin-bottom: 10px; }
+  .success-title { font-size: 24px; font-weight: 800; color: var(--success); margin-bottom: 6px; }
+  .success-sub { color: var(--muted); font-size: 15px; }
+
+  /* ── REFERRED BANNER ──────────────────────────────────────────── */
+  .referred-banner {
+    background: rgba(108,99,255,0.08); border: 1px solid rgba(108,99,255,0.25);
+    border-radius: 10px; padding: 12px 16px;
+    font-size: 13px; color: var(--accent); margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .referred-banner.hidden { display: none; }
+
+  /* ── TOAST ────────────────────────────────────────────────────── */
+  #toast {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--text); padding: 12px 22px; border-radius: 100px;
+    font-size: 14px; font-weight: 600; z-index: 999;
+    transition: transform 0.3s cubic-bezier(.4,0,.2,1), opacity 0.3s;
+    opacity: 0; pointer-events: none;
+    box-shadow: var(--shadow);
+    display: flex; align-items: center; gap: 8px;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  /* ── FOOTER ───────────────────────────────────────────────────── */
+  footer {
+    text-align: center; padding: 28px 20px;
+    color: var(--muted); font-size: 12px; border-top: 1px solid var(--border);
+    line-height: 1.8;
+  }
+
+  /* ── UTILITY ─────────────────────────────────────────────────── */
+  .text-center { text-align: center; }
+  .text-muted { color: var(--muted); }
+  .text-accent { color: var(--accent); }
+  .text-success { color: var(--success); }
+  .text-warning { color: var(--warning); }
+  .mt-4 { margin-top: 4px; }
+  .mt-8 { margin-top: 8px; }
+  .mt-12 { margin-top: 12px; }
+  .mt-16 { margin-top: 16px; }
+  .mt-24 { margin-top: 24px; }
+  .mb-8 { margin-bottom: 8px; }
+  .mb-16 { margin-bottom: 16px; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  .tag {
+    display: inline-flex; align-items: center;
+    background: rgba(108,99,255,0.12); color: var(--accent);
+    font-size: 11px; font-weight: 700; padding: 3px 10px;
+    border-radius: 100px; letter-spacing: 0.5px;
+  }
+  .section-header { margin-bottom: 28px; }
+  .section-header h2 { font-size: clamp(20px,3vw,28px); font-weight: 800; margin-bottom: 6px; }
+  .section-header p { color: var(--muted); font-size: 14px; }
+
+  /* day chart bars */
+  .day-bars { display: flex; align-items: flex-end; gap: 6px; height: 80px; margin-top: 8px; }
+  .day-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .day-bar { width: 100%; border-radius: 4px 4px 0 0; background: linear-gradient(180deg, var(--accent), rgba(108,99,255,0.4)); transition: var(--transition); }
+  .day-bar:hover { opacity: 0.8; }
+  .day-lbl { font-size: 10px; color: var(--muted); }
+  .day-num { font-size: 10px; color: var(--text); font-weight: 600; }
+
+  /* ── MOBILE ───────────────────────────────────────────────────── */
+  @media (max-width: 640px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .form-group.full { grid-column: 1; }
+    .share-selects { grid-template-columns: 1fr; }
+    .sim-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .nav-tabs { display: none; }
+    .nav-tabs.open {
+      display: flex; flex-direction: column;
+      position: absolute; top: 56px; left: 0; right: 0;
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 8px 12px; z-index: 99;
+    }
+    .nav-hamburger { display: block; }
+    .main-nav-wrapper { position: relative; }
+    .btn-group { flex-direction: column; }
+    .ref-code-box { flex-direction: column; align-items: flex-start; }
+    .analytics-2col { grid-template-columns: 1fr !important; }
+    .whatsget-4col { grid-template-columns: 1fr 1fr !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── NAV ─────────────────────────────────────────────────────── -->
+<nav id="main-nav" class="main-nav-wrapper">
+  <div class="nav-inner">
+    <div class="nav-logo">AI60 <span>Growth Engine</span></div>
+    <div class="nav-tabs" id="nav-tabs">
+      <button class="nav-tab active" data-tab="workshop">🎯 Workshop</button>
+      <button class="nav-tab" data-tab="referrals">🔗 My Referrals</button>
+      <button class="nav-tab" data-tab="leaderboard">🏆 Leaderboard</button>
+      <button class="nav-tab" data-tab="analytics">📊 Analytics</button>
+      <button class="nav-tab" data-tab="simulator">⚙️ Simulator</button>
+    </div>
+    <button class="nav-hamburger" id="hamburger" aria-label="Menu">☰</button>
+  </div>
+</nav>
+
+<!-- ─── TOAST ─────────────────────────────────────────────────────── -->
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     SECTION 1 — WORKSHOP / REGISTRATION
+══════════════════════════════════════════════════════════════════ -->
+<section class="section active" id="tab-workshop">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge">🚀 Free Live Workshop</div>
+    <h1>Build Your First<br><span class="grad">AI Project in 60 Minutes</span></h1>
+    <p>Build a portfolio-ready AI project in one live, hands-on session.</p>
+    <div class="hero-meta">
+      <div class="hero-pill"><span class="dot"></span> Free — No cost</div>
+      <div class="hero-pill">⏱ 60 minutes only</div>
+      <div class="hero-pill">🎓 Final-year students</div>
+      <div class="hero-pill">💻 Live + hands-on</div>
+    </div>
+  </div>
+
+  <!-- Referred by banner -->
+  <div class="referred-banner hidden" id="referred-banner">
+    👋 You were referred by <strong id="referred-by-code"></strong> — great taste! Register below.
+  </div>
+
+  <!-- Registration / Post-reg toggle -->
+  <div id="reg-view">
+    <div class="card">
+      <div class="card-title"><span class="icon">📝</span> Register for the Workshop</div>
+      <form id="reg-form" novalidate>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="f-name">Full Name *</label>
+            <input type="text" id="f-name" placeholder="e.g. Subhash Kumar" autocomplete="name" />
+            <div class="form-error" id="err-name">Please enter your name</div>
+          </div>
+          <div class="form-group">
+            <label for="f-email">Email Address *</label>
+            <input type="email" id="f-email" placeholder="you@college.edu" autocomplete="email" />
+            <div class="form-error" id="err-email">Please enter a valid email</div>
+          </div>
+          <div class="form-group">
+            <label for="f-phone">WhatsApp Number *</label>
+            <input type="tel" id="f-phone" placeholder="10-digit number" autocomplete="tel" maxlength="10" />
+            <div class="form-error" id="err-phone">Enter a valid 10-digit number</div>
+          </div>
+          <div class="form-group">
+            <label for="f-college">College Name *</label>
+            <input type="text" id="f-college" placeholder="e.g. JNTU Hyderabad" />
+            <div class="form-error" id="err-college">Please enter your college</div>
+          </div>
+          <div class="form-group">
+            <label for="f-branch">Branch *</label>
+            <select id="f-branch">
+              <option value="">Select branch</option>
+              <option>Computer Science (CS)</option>
+              <option>Information Technology (IT)</option>
+              <option>Electronics & Communication (ECE)</option>
+              <option>Electrical Engineering (EEE)</option>
+              <option>Mechanical Engineering (ME)</option>
+              <option>Civil Engineering (CE)</option>
+              <option>Other</option>
+            </select>
+            <div class="form-error" id="err-branch">Please select your branch</div>
+          </div>
+          <div class="form-group">
+            <label for="f-year">Graduation Year *</label>
+            <select id="f-year">
+              <option value="">Select year</option>
+              <option>2025</option>
+              <option>2026</option>
+              <option>2027</option>
+            </select>
+            <div class="form-error" id="err-year">Please select graduation year</div>
+          </div>
+        </div>
+        <div style="margin-top:20px;">
+          <button type="submit" class="btn btn-primary btn-full" style="padding:14px;">
+            🚀 Register for Free Workshop
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- HOW IT GROWS strip -->
+    <div style="background:linear-gradient(135deg,rgba(108,99,255,0.08),rgba(0,212,170,0.06));border:1px solid rgba(108,99,255,0.2);border-radius:var(--radius-lg);padding:20px 28px;margin-bottom:20px;">
+      <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);margin-bottom:14px;">How It Grows</div>
+      <div style="display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center;">
+        <div style="text-align:center;padding:0 16px;">
+          <div style="font-size:22px;margin-bottom:4px;">📝</div>
+          <div style="font-size:13px;font-weight:700;">Register</div>
+        </div>
+        <div style="color:var(--muted);font-size:20px;padding:0 4px;">→</div>
+        <div style="text-align:center;padding:0 16px;">
+          <div style="font-size:22px;margin-bottom:4px;">🔗</div>
+          <div style="font-size:13px;font-weight:700;">Get Your Link</div>
+        </div>
+        <div style="color:var(--muted);font-size:20px;padding:0 4px;">→</div>
+        <div style="text-align:center;padding:0 16px;">
+          <div style="font-size:22px;margin-bottom:4px;">📲</div>
+          <div style="font-size:13px;font-weight:700;">Share</div>
+        </div>
+        <div style="color:var(--muted);font-size:20px;padding:0 4px;">→</div>
+        <div style="text-align:center;padding:0 16px;">
+          <div style="font-size:22px;margin-bottom:4px;">🎁</div>
+          <div style="font-size:13px;font-weight:700;">Unlock Resources</div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--muted);">This isn't just a workshop — it's a measurable student-to-student growth system.</div>
+    </div>
+
+    <!-- What you'll get -->
+    <div class="card">
+      <div class="card-title"><span class="icon">✨</span> What You'll Get</div>
+      <div class="whatsget-4col" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;display:flex;flex-direction:column;align-items:flex-start;gap:10px;">
+          <div style="width:40px;height:40px;border-radius:10px;background:rgba(108,99,255,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;">🤖</div>
+          <div><div style="font-weight:700;font-size:14px;margin-bottom:3px;">Working AI Project</div><div style="font-size:12px;color:var(--muted);line-height:1.5;">Build something real in 60 minutes</div></div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;display:flex;flex-direction:column;align-items:flex-start;gap:10px;">
+          <div style="width:40px;height:40px;border-radius:10px;background:rgba(0,212,170,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;">📄</div>
+          <div><div style="font-weight:700;font-size:14px;margin-bottom:3px;">Resume-Ready Output</div><div style="font-size:12px;color:var(--muted);line-height:1.5;">Add it to your portfolio today</div></div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;display:flex;flex-direction:column;align-items:flex-start;gap:10px;">
+          <div style="width:40px;height:40px;border-radius:10px;background:rgba(255,209,102,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;">🎯</div>
+          <div><div style="font-weight:700;font-size:14px;margin-bottom:3px;">Interview Talking Point</div><div style="font-size:12px;color:var(--muted);line-height:1.5;">Build something concrete you can confidently discuss.</div></div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;display:flex;flex-direction:column;align-items:flex-start;gap:10px;">
+          <div style="width:40px;height:40px;border-radius:10px;background:rgba(255,107,107,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;">🎁</div>
+          <div><div style="font-weight:700;font-size:14px;margin-bottom:3px;">Referral Rewards</div><div style="font-size:12px;color:var(--muted);line-height:1.5;">Earn kits and guides for sharing</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Post-registration view (hidden until registered) -->
+  <div id="postreg-view" style="display:none;">
+    <div class="success-banner">
+      <div class="success-icon">🎉</div>
+      <div class="success-title">You're in! <span id="pr-name-display"></span></div>
+      <div class="success-sub">Workshop seat confirmed. Share with friends to unlock exclusive rewards.</div>
+    </div>
+    <!-- referral progress mini card -->
+    <div class="card">
+      <div class="card-title"><span class="icon">🔗</span> Your Referral Progress</div>
+      <div class="ref-code-box mb-8" style="margin-bottom:14px;">
+        <div>
+          <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Your Referral Code</div>
+          <div class="ref-code" id="pr-refcode">AI60-XXXX-0000</div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="copyRefCode()">📋 Copy Code</button>
+      </div>
+      <div class="ref-url-box">
+        <div class="ref-url-text" id="pr-refurl">Loading...</div>
+        <button class="btn btn-outline btn-sm" onclick="copyRefUrl()">Copy Link</button>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <span style="font-size:14px;font-weight:700;">Referrals: <span id="pr-ref-count">0</span> / 3</span>
+        <span style="font-size:13px;color:var(--muted);" id="pr-next-reward">1 more to unlock AI Project Starter Kit</span>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-bar" id="pr-ref-bar" style="width:0%"></div>
+      </div>
+      <div class="btn-group mt-16">
+        <button class="btn btn-wa" onclick="goToShare()">📲 Share on WhatsApp</button>
+        <button class="btn btn-secondary" onclick="showTab('referrals')">View Full Dashboard →</button>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     SECTION 2 — MY REFERRALS
+══════════════════════════════════════════════════════════════════ -->
+<section class="section" id="tab-referrals">
+  <div class="section-header">
+    <h2>🔗 My Referral Dashboard</h2>
+    <p>Track your referrals, share your link, and unlock rewards.</p>
+  </div>
+
+  <!-- Not registered prompt -->
+  <div id="ref-not-registered" style="display:none;">
+    <div class="card text-center" style="padding:40px;">
+      <div style="font-size:48px;margin-bottom:16px;">👋</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Register First</div>
+      <div style="color:var(--muted);margin-bottom:20px;">You need to register for the workshop to get your unique referral code.</div>
+      <button class="btn btn-primary" onclick="showTab('workshop')">Register Now →</button>
+    </div>
+  </div>
+
+  <!-- Registered view -->
+  <div id="ref-registered" style="display:none;">
+    <div class="card">
+      <div class="card-title"><span class="icon">🎯</span> Your Referral Stats</div>
+      <div class="stats-grid" style="margin-bottom:16px;">
+        <div class="stat-card">
+          <div class="stat-label">Referral Code</div>
+          <div style="font-family:'Courier New',monospace;font-size:17px;font-weight:800;color:var(--accent);margin-top:4px;" id="rd-refcode">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Friends Referred</div>
+          <div class="stat-value stat-accent" id="rd-count">0</div>
+          <div class="stat-sub">This session</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Next Reward At</div>
+          <div class="stat-value" id="rd-next-at">3</div>
+          <div class="stat-sub stat-success" id="rd-next-name">AI Project Starter Kit</div>
+        </div>
+      </div>
+
+      <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px;">Your Referral Link</div>
+      <div class="ref-url-box" style="margin-bottom:14px;">
+        <div class="ref-url-text" id="rd-refurl">Loading...</div>
+        <button class="btn btn-outline btn-sm" onclick="copyRefUrl()">Copy</button>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-bottom:6px;">
+        <span id="rd-prog-label">0 / 3 referrals to unlock AI Project Starter Kit</span>
+        <span id="rd-prog-pct">0%</span>
+      </div>
+      <div class="progress-wrap" style="height:12px;">
+        <div class="progress-bar" id="rd-progress" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Rewards -->
+    <div class="card">
+      <div class="card-title"><span class="icon">🎁</span> Referral Rewards
+        <span class="demo-badge">Campaign Incentives</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Proposed incentives for the campaign simulation. These represent genuinely useful resources for placement preparation.</div>
+      <div class="reward-steps">
+        <div class="reward-item" id="reward-item-3">
+          <div class="reward-badge" id="reward-badge-3">🎒</div>
+          <div class="reward-info">
+            <div class="reward-title">3 Referrals → AI Project Starter Kit</div>
+            <div class="reward-desc">Project idea templates · Prompt pack · GitHub README template · Resume bullet template</div>
+          </div>
+        </div>
+        <div class="reward-item" id="reward-item-5">
+          <div class="reward-badge" id="reward-badge-5">📖</div>
+          <div class="reward-info">
+            <div class="reward-title">5 Referrals → AI Interview Project Guide</div>
+            <div class="reward-desc">How to present AI projects in interviews · Common AI interview questions · Talking points</div>
+          </div>
+        </div>
+        <div class="reward-item">
+          <div class="reward-badge">🏆</div>
+          <div class="reward-info">
+            <div class="reward-title">Top Referrers → Workshop Recognition + Mentor Q&A</div>
+            <div class="reward-desc">Name on leaderboard · Priority Q&A slot with workshop mentor · Workshop certificate</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Smart Share Assistant -->
+    <div class="card">
+      <div class="card-title"><span class="icon">💬</span> Smart Share Assistant</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:18px;">Context-aware messaging designed for student-to-student sharing. Select your audience and tone to generate the right message instantly.</div>
+
+      <div class="share-selects">
+        <div class="form-group">
+          <label for="sa-audience">Audience</label>
+          <select id="sa-audience">
+            <option value="class">Class WhatsApp Group</option>
+            <option value="placement">Placement Group</option>
+            <option value="techclub">Tech Club</option>
+            <option value="friend">Friend</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="sa-tone">Tone</label>
+          <select id="sa-tone">
+            <option value="casual">Casual</option>
+            <option value="professional">Professional</option>
+            <option value="fomo">FOMO</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="message-output" id="sa-output">
+        <span class="message-placeholder">Click "Generate Message" to create a personalised sharing message for your selected audience and tone.</span>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" onclick="generateMessage()">✨ Generate Message</button>
+        <button class="btn btn-secondary" onclick="regenerateMessage()">🔄 Regenerate</button>
+        <button class="btn btn-outline" id="sa-copy-btn" onclick="copyMessage()" style="display:none;">📋 Copy Message</button>
+        <button class="btn btn-wa" id="sa-wa-btn" onclick="shareViaWhatsApp()" style="display:none;">📲 Share on WhatsApp</button>
+      </div>
+    </div>
+
+    <!-- Simulate a referral (demo only) -->
+    <div class="card" style="border-style:dashed;">
+      <div class="card-title"><span class="icon">🧪</span> Simulate a Referral <span class="demo-badge">Demo Only</span></div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:14px;">In a real campaign, referrals are tracked when someone registers using your unique link. For this prototype demo, use the button below to simulate an incoming referral.</div>
+      <button class="btn btn-secondary btn-sm" onclick="simulateReferral()">+ Add Simulated Referral</button>
+    </div>
+  </div>
+
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     SECTION 3 — LEADERBOARD
+══════════════════════════════════════════════════════════════════ -->
+<section class="section" id="tab-leaderboard">
+  <div class="section-header">
+    <h2>🏆 Top Referrers</h2>
+    <p>Students driving the most workshop registrations through referrals.</p>
+  </div>
+  <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:16px;">
+    <span style="background:rgba(255,209,102,0.1);border:1px solid rgba(255,209,102,0.25);color:var(--accent4);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:100px;">Simulated Data</span>
+    <span style="font-size:12px;color:var(--muted);">Sample data used to demonstrate referral mechanics.</span>
+  </div>
+
+  <div class="card">
+    <table class="lb-table" id="lb-table">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Student</th>
+          <th>College</th>
+          <th>Branch</th>
+          <th>Referrals</th>
+        </tr>
+      </thead>
+      <tbody id="lb-body"></tbody>
+    </table>
+  </div>
+
+  <div style="text-align:center;padding:12px 0;">
+    <div style="font-size:13px;color:var(--muted);">Your referrals appear here once you register and start sharing. <button class="btn btn-outline btn-sm" style="margin-left:8px;" onclick="showTab('referrals')">Start Sharing →</button></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     SECTION 4 — ANALYTICS
+══════════════════════════════════════════════════════════════════ -->
+<section class="section" id="tab-analytics" style="max-width:1100px;">
+  <div class="section-header">
+    <h2>📊 Campaign Analytics</h2>
+    <p>A live view of how the 500-registration goal is tracking.</p>
+  </div>
+  <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:16px;">
+    <span style="background:rgba(255,209,102,0.1);border:1px solid rgba(255,209,102,0.25);color:var(--accent4);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:100px;">Simulated Campaign Data</span>
+    <span style="font-size:12px;color:var(--muted);">Illustrative metrics for campaign modelling.</span>
+  </div>
+
+  <!-- Key metrics -->
+  <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);">
+    <div class="stat-card">
+      <div class="stat-label">Total Registrations</div>
+      <div class="stat-value stat-accent">327</div>
+      <div class="stat-sub">of 500 target</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Goal Progress</div>
+      <div class="stat-value stat-success">65.4%</div>
+      <div class="stat-sub">Day 5 of 7</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Referral Registrations</div>
+      <div class="stat-value stat-warning">118</div>
+      <div class="stat-sub">36.1% of total</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Top Channel</div>
+      <div class="stat-value" style="font-size:18px;margin-top:4px;">📱 WhatsApp</div>
+      <div class="stat-sub">167 registrations</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Campaign Spend</div>
+      <div class="stat-value">₹620</div>
+      <div class="stat-sub">of ₹2,000 budget</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Cost / Registration</div>
+      <div class="stat-value stat-success">₹1.90</div>
+      <div class="stat-sub">Paid only: ₹15.50</div>
+    </div>
+  </div>
+
+  <!-- Overall progress -->
+  <div class="card">
+    <div class="card-title"><span class="icon">🎯</span> Registration Progress</div>
+    <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;margin-bottom:8px;">
+      <span>327 registered</span><span style="color:var(--muted);">173 remaining</span>
+    </div>
+    <div class="progress-wrap" style="height:14px;">
+      <div class="progress-bar" style="width:65.4%"></div>
+    </div>
+    <div class="progress-label">
+      <span>0</span><span>Day 5 of 7</span><span>500 goal</span>
+    </div>
+  </div>
+
+  <!-- Registrations by channel + Day — side by side -->
+  <div class="analytics-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+    <div class="card" style="margin-bottom:0;">
+      <div class="card-title"><span class="icon">📡</span> By Channel</div>
+      <div class="channel-bars">
+        <div class="channel-row">
+          <div class="channel-top">
+            <span class="channel-name">📱 WhatsApp</span>
+            <span class="channel-count">167 (51.1%)</span>
+          </div>
+          <div class="progress-wrap"><div class="progress-bar" style="width:51.1%;background:linear-gradient(90deg,#25d366,#00d4aa)"></div></div>
+        </div>
+        <div class="channel-row">
+          <div class="channel-top">
+            <span class="channel-name">🔗 Referral Links</span>
+            <span class="channel-count">118 (36.1%)</span>
+          </div>
+          <div class="progress-wrap"><div class="progress-bar" style="width:36.1%;background:linear-gradient(90deg,var(--accent),#8b5cf6)"></div></div>
+        </div>
+        <div class="channel-row">
+          <div class="channel-top">
+            <span class="channel-name">🏫 Tech Clubs</span>
+            <span class="channel-count">32 (9.8%)</span>
+          </div>
+          <div class="progress-wrap"><div class="progress-bar" style="width:9.8%;background:linear-gradient(90deg,var(--accent4),#ffb347)"></div></div>
+        </div>
+        <div class="channel-row">
+          <div class="channel-top">
+            <span class="channel-name">📸 Instagram (Paid)</span>
+            <span class="channel-count">10 (3.0%)</span>
+          </div>
+          <div class="progress-wrap"><div class="progress-bar" style="width:3%;background:linear-gradient(90deg,#e1306c,#fd1d1d)"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:0;">
+      <div class="card-title"><span class="icon">📈</span> By Day</div>
+      <div class="day-bars" id="day-bars"></div>
+      <div style="display:flex;gap:6px;margin-top:4px;" id="day-labels"></div>
+    </div>
+  </div>
+
+  <!-- Funnel + Direct vs Referral — side by side -->
+  <div class="analytics-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+    <div class="card" style="margin-bottom:0;">
+      <div class="card-title"><span class="icon">🔽</span> Campaign Funnel</div>
+      <div class="funnel" id="funnel"></div>
+    </div>
+
+    <div class="card" style="margin-bottom:0;">
+      <div class="card-title"><span class="icon">🔀</span> Direct vs Referral</div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="background:var(--surface);border-radius:10px;padding:20px;text-align:center;">
+          <div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Direct Registrations</div>
+          <div style="font-size:40px;font-weight:900;color:var(--accent);">209</div>
+          <div style="font-size:12px;color:var(--muted);">63.9% of total</div>
+        </div>
+        <div style="background:var(--surface);border-radius:10px;padding:20px;text-align:center;">
+          <div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Referral Registrations</div>
+          <div style="font-size:40px;font-weight:900;color:var(--accent2);">118</div>
+          <div style="font-size:12px;color:var(--muted);">36.1% of total</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Budget -->
+  <div class="card">
+    <div class="card-title"><span class="icon">💰</span> Budget Allocation</div>
+    <div class="channel-bars">
+      <div class="channel-row">
+        <div class="channel-top"><span class="channel-name">Instagram creative test A/B</span><span class="channel-count">₹500 spent</span></div>
+        <div class="progress-wrap"><div class="progress-bar" style="width:25%;background:linear-gradient(90deg,#e1306c,#fd1d1d)"></div></div>
+      </div>
+      <div class="channel-row">
+        <div class="channel-top"><span class="channel-name">Scale winning Instagram creative</span><span class="channel-count">₹120 spent</span></div>
+        <div class="progress-wrap"><div class="progress-bar" style="width:6%"></div></div>
+      </div>
+      <div class="channel-row">
+        <div class="channel-top"><span class="channel-name">Referral / Ambassador incentives</span><span class="channel-count">₹0 spent (₹700 reserved)</span></div>
+        <div class="progress-wrap"><div class="progress-bar" style="width:35%;background:linear-gradient(90deg,var(--accent4),#ffb347)"></div></div>
+      </div>
+      <div class="channel-row">
+        <div class="channel-top"><span class="channel-name">Reserve for best experiment</span><span class="channel-count">₹680 remaining</span></div>
+        <div class="progress-wrap"><div class="progress-bar" style="width:34%;background:linear-gradient(90deg,var(--success),#00b894)"></div></div>
+      </div>
+    </div>
+    <div style="margin-top:12px;font-size:13px;color:var(--muted);">Budget philosophy: Validate → Measure → Scale winning channel. Avoid spreading ₹2,000 across 4 channels — produces no usable signal on any of them.</div>
+  </div>
+
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     SECTION 5 — GROWTH SIMULATOR + STRATEGY
+══════════════════════════════════════════════════════════════════ -->
+<section class="section" id="tab-simulator">
+  <div class="section-header">
+    <h2>⚙️ Growth Simulator</h2>
+    <p>Adjust the campaign assumptions and see how 500 registrations get built.</p>
+  </div>
+
+  <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:20px;">
+    <span style="background:rgba(108,99,255,0.1);border:1px solid rgba(108,99,255,0.25);color:var(--accent);font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:100px;white-space:nowrap;margin-top:1px;">Campaign Model</span>
+    <span style="font-size:13px;color:var(--muted);">Projection based on adjustable assumptions. Instead of assigning arbitrary numbers to channels, this tool makes the acquisition hypothesis explicit and challengeable. Every assumption is a slider.</span>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="icon">🎛️</span> Campaign Assumptions</div>
+    <div class="sim-grid" id="sim-controls">
+      <!-- generated by JS -->
+    </div>
+  </div>
+
+  <div class="sim-result">
+    <div class="sim-result-label">Projected Registrations</div>
+    <div class="sim-result-num on-target" id="sim-total">500</div>
+    <div class="sim-status" id="sim-status">🎯 Target reached ✓</div>
+    <div class="sim-breakdown" id="sim-breakdown"></div>
+    <div id="sim-insight" style="margin-top:16px;font-size:13px;color:var(--muted);border-top:1px solid rgba(255,255,255,0.06);padding-top:14px;"></div>
+  </div>
+
+  <!-- 7-Day Strategy -->
+  <div class="card" style="margin-top:28px;">
+    <div class="card-title"><span class="icon">🗓️</span> 7-Day Campaign Strategy</div>
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:13px;color:var(--muted);letter-spacing:2px;">
+        Idea → Build → Launch → Measure → Learn → Scale
+      </div>
+    </div>
+    <div class="timeline" id="timeline"></div>
+  </div>
+
+</section>
+
+
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+// ── STATE ─────────────────────────────────────────────────────────
+let userData = null;
+let currentMessage = '';
+let lastAudienceTone = { audience: '', tone: '', variantIndex: 0 };
+
+// ── STORAGE ───────────────────────────────────────────────────────
+function saveUser(u) { try { localStorage.setItem('ai60_user', JSON.stringify(u)); } catch(e){} }
+function loadUser() { try { const d = localStorage.getItem('ai60_user'); return d ? JSON.parse(d) : null; } catch(e){ return null; } }
+function saveReferrals(n) { try { localStorage.setItem('ai60_referrals', String(n)); } catch(e){} }
+function loadReferrals() { try { return parseInt(localStorage.getItem('ai60_referrals') || '0', 10); } catch(e){ return 0; } }
+
+// ── REFERRAL CODE GENERATOR ────────────────────────────────────────
+function makeRefCode(name) {
+  const slug = name.trim().toUpperCase().replace(/[^A-Z]/g, '').slice(0,7);
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let rand = '';
+  for (let i = 0; i < 4; i++) rand += chars[Math.floor(Math.random() * chars.length)];
+  return 'AI60-' + slug + '-' + rand;
+}
+
+function getRefUrl(code) {
+  return window.location.origin + window.location.pathname + '?ref=' + encodeURIComponent(code);
+}
+
+// ── URL PARAMS ─────────────────────────────────────────────────────
+function getUrlParam(key) {
+  return new URLSearchParams(window.location.search).get(key);
+}
+
+// ── TOAST ──────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg, icon='✅') {
+  const t = document.getElementById('toast');
+  t.innerHTML = icon + ' ' + msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ── NAV ────────────────────────────────────────────────────────────
+function showTab(tabId) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tabId).classList.add('active');
+  document.querySelector('[data-tab="' + tabId + '"]').classList.add('active');
+  // close mobile menu
+  document.getElementById('nav-tabs').classList.remove('open');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // refresh referral view when switching to it
+  if (tabId === 'referrals') refreshReferralView();
+}
+
+document.querySelectorAll('.nav-tab').forEach(btn => {
+  btn.addEventListener('click', () => showTab(btn.dataset.tab));
+});
+
+document.getElementById('hamburger').addEventListener('click', () => {
+  document.getElementById('nav-tabs').classList.toggle('open');
+});
+
+// ── REGISTRATION ───────────────────────────────────────────────────
+document.getElementById('reg-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  if (!validateForm()) return;
+
+  const name   = document.getElementById('f-name').value.trim();
+  const email  = document.getElementById('f-email').value.trim();
+  const phone  = document.getElementById('f-phone').value.trim();
+  const college= document.getElementById('f-college').value.trim();
+  const branch = document.getElementById('f-branch').value;
+  const year   = document.getElementById('f-year').value;
+  const refCode = makeRefCode(name);
+  const refUrl  = getRefUrl(refCode);
+  const referredBy = getUrlParam('ref') || '';
+
+  userData = { name, email, phone, college, branch, year, refCode, refUrl, referredBy };
+  saveUser(userData);
+  saveReferrals(0);
+  showPostReg();
+});
+
+function validateForm() {
+  let ok = true;
+  function check(id, errId, fn) {
+    const el = document.getElementById(id);
+    const err = document.getElementById(errId);
+    if (!fn(el.value.trim())) {
+      el.classList.add('error'); err.classList.add('show'); ok = false;
+    } else {
+      el.classList.remove('error'); err.classList.remove('show');
+    }
+  }
+  check('f-name',   'err-name',   v => v.length >= 2);
+  check('f-email',  'err-email',  v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v));
+  check('f-phone',  'err-phone',  v => /^\d{10}$/.test(v));
+  check('f-college','err-college',v => v.length >= 2);
+  check('f-branch', 'err-branch', v => v !== '');
+  check('f-year',   'err-year',   v => v !== '');
+  return ok;
+}
+
+// clear error on input
+['f-name','f-email','f-phone','f-college','f-branch','f-year'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => {
+    el.classList.remove('error');
+    document.getElementById('err-' + id.replace('f-','')).classList.remove('show');
+  });
+  el.addEventListener('change', () => el.classList.remove('error'));
+});
+
+function showPostReg() {
+  if (!userData) return;
+  document.getElementById('reg-view').style.display = 'none';
+  const pv = document.getElementById('postreg-view');
+  pv.style.display = 'block';
+  document.getElementById('pr-name-display').textContent = userData.name.split(' ')[0] + ' 🙌';
+  document.getElementById('pr-refcode').textContent = userData.refCode;
+  document.getElementById('pr-refurl').textContent = userData.refUrl;
+  updateRefProgress();
+  pv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function updateRefProgress() {
+  if (!userData) return;
+  const count = loadReferrals();
+  const pct = Math.min(100, (count / 3) * 100);
+  document.getElementById('pr-ref-count').textContent = count;
+  document.getElementById('pr-ref-bar').style.width = pct + '%';
+  let msg = '';
+  if (count >= 5) msg = '🏆 All rewards unlocked!';
+  else if (count >= 3) msg = '2 more to unlock AI Interview Guide';
+  else msg = (3 - count) + ' more to unlock AI Project Starter Kit';
+  document.getElementById('pr-next-reward').textContent = msg;
+}
+
+// ── COPY / SHARE HELPERS ───────────────────────────────────────────
+function clipboardCopy(text, successMsg) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => showToast(successMsg)).catch(() => fallbackCopy(text, successMsg));
+  } else {
+    fallbackCopy(text, successMsg);
+  }
+}
+function fallbackCopy(text, successMsg) {
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+  document.body.removeChild(ta); showToast(successMsg);
+}
+function copyRefCode() {
+  if (!userData) return;
+  clipboardCopy(userData.refCode, 'Referral code copied!');
+}
+function copyRefUrl() {
+  if (!userData) return;
+  clipboardCopy(userData.refUrl, 'Referral link copied!');
+}
+function goToShare() { showTab('referrals'); }
+
+// ── REFERRAL VIEW ─────────────────────────────────────────────────
+function refreshReferralView() {
+  const notReg = document.getElementById('ref-not-registered');
+  const regView = document.getElementById('ref-registered');
+  if (!userData) {
+    notReg.style.display = 'block'; regView.style.display = 'none'; return;
+  }
+  notReg.style.display = 'none'; regView.style.display = 'block';
+  document.getElementById('rd-refcode').textContent = userData.refCode;
+  document.getElementById('rd-refurl').textContent = userData.refUrl;
+  const count = loadReferrals();
+  document.getElementById('rd-count').textContent = count;
+  const nextAt = count < 3 ? 3 : count < 5 ? 5 : '✓';
+  const nextName = count < 3 ? 'AI Project Starter Kit' : count < 5 ? 'AI Interview Project Guide' : 'All rewards unlocked!';
+  document.getElementById('rd-next-at').textContent = nextAt;
+  document.getElementById('rd-next-name').textContent = nextName;
+  const goal = count < 3 ? 3 : 5;
+  const pct = Math.min(100, (count / goal) * 100);
+  document.getElementById('rd-progress').style.width = pct + '%';
+  document.getElementById('rd-prog-pct').textContent = Math.round(pct) + '%';
+  document.getElementById('rd-prog-label').textContent = count + ' / ' + goal + ' referrals to unlock ' + (count >= 5 ? 'all rewards' : nextName);
+
+  // reward badge highlights
+  if (count >= 3) {
+    document.getElementById('reward-badge-3').classList.add('achieved');
+    document.getElementById('reward-item-3').style.border = '1px solid rgba(0,212,170,0.3)';
+  }
+  if (count >= 5) {
+    document.getElementById('reward-badge-5').classList.add('achieved');
+    document.getElementById('reward-item-5').style.border = '1px solid rgba(0,212,170,0.3)';
+  }
+}
+
+function simulateReferral() {
+  let count = loadReferrals() + 1;
+  saveReferrals(count);
+  refreshReferralView();
+  updateRefProgress();
+  showToast('Simulated referral added! (' + count + ' total)', '🔗');
+}
+
+// ── SMART SHARE ASSISTANT ──────────────────────────────────────────
+// 12 templates: 4 audiences × 3 tones, each with 2 variants
+const TEMPLATES = {
+  class: {
+    casual: [
+      `Hey everyone! 👋 Found this free AI workshop — we actually build a real AI project in just 60 minutes. Perfect for our final year lol. No cost, no prep needed. Joining it! Come along: {URL}`,
+      `Guys, sharing this here — free 60-min AI workshop where we actually build something. Timing is 🔥 for placements. Register and use my link: {URL}`
+    ],
+    professional: [
+      `Hi everyone, sharing a free online workshop: "Build Your First AI Project in 60 Minutes." It's designed for final-year students and focuses on practical output. Could be a useful addition to your placement portfolio. Registration link: {URL}`,
+      `For those looking to strengthen their technical portfolio before placements — there's a free 60-minute AI workshop running soon. Hands-on, practical, and free. Link: {URL}`
+    ],
+    fomo: [
+      `Class group 👀 Registrations for this free AI workshop are filling up. Final year with no AI project? This is the fastest fix — 60 minutes, real project, free. Don't miss it: {URL}`,
+      `Dropping this before it fills up — free AI workshop, 60 mins, you walk out with an actual project. Our batch needs this before placements. Register now: {URL}`
+    ]
+  },
+  placement: {
+    casual: [
+      `Hey! Sharing a free workshop where you build an AI project in 60 mins. Great to add to the resume before campus placements. I'm registering — you should too: {URL}`,
+      `Found something actually useful for placements — free 60-minute workshop, you build a real AI project. Sharing here before registrations close: {URL}`
+    ],
+    professional: [
+      `Hi everyone. I came across a free 60-minute workshop focused on building your first AI project. It could be useful for final-year students looking to add a practical AI project to their portfolio. I'm attending as well. Register here: {URL}`,
+      `Sharing a resource relevant to our placement prep — a free hands-on AI workshop. 60 minutes, practical project, directly applicable to interviews asking for AI experience. Link: {URL}`
+    ],
+    fomo: [
+      `Placement group — if you don't have an AI project on your resume yet, this is the fastest way to fix that. Free, 60 minutes, actual project. Registrations are limited: {URL}`,
+      `Every company is asking for AI experience now. This free workshop gives you a real project in 60 minutes. Register before it fills: {URL}`
+    ]
+  },
+  techclub: {
+    casual: [
+      `Hey tech peeps! 👾 Sharing a free AI project workshop — 60 mins and you actually build something. Perfect for our members who want something for the portfolio: {URL}`,
+      `Club fam — this free AI workshop is worth sharing. 60 minutes, hands-on, real output. Register and share with members: {URL}`
+    ],
+    professional: [
+      `Sharing with the community — there's a free workshop on building your first AI project in 60 minutes. Practical, hands-on, and directly portfolio-relevant for engineering students. Would recommend for club members preparing for placements: {URL}`,
+      `For members interested in applied AI — a free 60-minute workshop where participants build a real AI project. Directly applicable to placement preparation. Registration: {URL}`
+    ],
+    fomo: [
+      `Tech club members — this free AI workshop is going fast. 60 mins, real project, resume-ready output. Share with your networks before registrations close: {URL}`,
+      `If our club members aren't in this yet, now's the time. Free AI project workshop, 60 minutes. The window is closing: {URL}`
+    ]
+  },
+  friend: {
+    casual: [
+      `Bro/Dii, found this free AI workshop 👀 We actually build a project in 60 mins. I'm joining — come along: {URL}`,
+      `Yaar, this is actually useful — free workshop, one hour, you walk out with an AI project. Register with my link: {URL}`
+    ],
+    professional: [
+      `Hey! Sharing a free workshop that seems genuinely useful for our placements — "Build Your First AI Project in 60 Minutes." Thought you might want to register: {URL}`,
+      `I'm attending a free AI workshop next week. Figured you'd find it useful too — it's 60 mins and you actually build a project. Here's the link: {URL}`
+    ],
+    fomo: [
+      `Dude, register for this before it fills up 😭 Free AI workshop, 60 minutes, actual project for your resume. I just got in: {URL}`,
+      `This free AI workshop is filling up fast. If you haven't registered yet — do it now. I'll see you there: {URL}`
+    ]
+  }
+};
+
+function generateMessage() {
+  const audience = document.getElementById('sa-audience').value;
+  const tone = document.getElementById('sa-tone').value;
+  const variants = TEMPLATES[audience][tone];
+  lastAudienceTone = { audience, tone, variantIndex: 0 };
+  renderMessage(variants[0]);
+}
+
+function regenerateMessage() {
+  // Always read current select values so Regenerate works even before Generate
+  const audience = document.getElementById('sa-audience').value;
+  const tone = document.getElementById('sa-tone').value;
+  if (!currentMessage && lastAudienceTone.audience === '') {
+    // Nothing generated yet — generate fresh instead
+    generateMessage(); return;
+  }
+  // Advance variant index, reset if audience/tone changed
+  if (lastAudienceTone.audience !== audience || lastAudienceTone.tone !== tone) {
+    lastAudienceTone = { audience, tone, variantIndex: 0 };
+  } else {
+    const variants = TEMPLATES[audience][tone];
+    lastAudienceTone.variantIndex = (lastAudienceTone.variantIndex + 1) % variants.length;
+  }
+  const variants = TEMPLATES[audience][tone];
+  renderMessage(variants[lastAudienceTone.variantIndex]);
+}
+
+function renderMessage(template) {
+  const url = userData ? userData.refUrl : getRefUrl('AI60-YOURNAME-XXXX');
+  currentMessage = template.replace('{URL}', url);
+  const out = document.getElementById('sa-output');
+  out.textContent = currentMessage;
+  document.getElementById('sa-copy-btn').style.display = 'inline-flex';
+  document.getElementById('sa-wa-btn').style.display = 'inline-flex';
+}
+
+function copyMessage() {
+  if (!currentMessage) return;
+  const btn = document.getElementById('sa-copy-btn');
+  const doSuccess = () => {
+    btn.innerHTML = '✅ Copied!';
+    setTimeout(() => { btn.innerHTML = '📋 Copy Message'; }, 2000);
+    showToast('Message copied to clipboard!');
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(currentMessage).then(doSuccess).catch(() => {
+      fallbackCopy(currentMessage, 'Message copied!'); btn.innerHTML = '✅ Copied!';
+      setTimeout(() => { btn.innerHTML = '📋 Copy Message'; }, 2000);
+    });
+  } else {
+    fallbackCopy(currentMessage, 'Message copied!');
+    btn.innerHTML = '✅ Copied!';
+    setTimeout(() => { btn.innerHTML = '📋 Copy Message'; }, 2000);
+  }
+}
+
+function shareViaWhatsApp() {
+  if (!currentMessage) { showToast('Generate a message first', '⚠️'); return; }
+  const encoded = encodeURIComponent(currentMessage);
+  window.open('https://wa.me/?text=' + encoded, '_blank');
+}
+
+// ── LEADERBOARD ────────────────────────────────────────────────────
+const LB_DATA = [
+  { name:'Arjun Sharma',     college:'JNTU Hyderabad',     branch:'CSE', refs:22 },
+  { name:'Priya Nair',       college:'VIT Vellore',         branch:'IT',  refs:18 },
+  { name:'Rahul Mehta',      college:'SRM Chennai',         branch:'ECE', refs:15 },
+  { name:'Sneha Iyer',       college:'NIT Trichy',          branch:'CSE', refs:13 },
+  { name:'Karthik Reddy',    college:'BITS Pilani',         branch:'CSE', refs:11 },
+  { name:'Divya Krishnan',   college:'Anna University',     branch:'IT',  refs:9  },
+  { name:'Abhishek Patel',   college:'RVCE Bangalore',      branch:'CSE', refs:8  },
+  { name:'Pooja Desai',      college:'Symbiosis Pune',      branch:'IT',  refs:6  },
+  { name:'Mohammed Farouk',  college:'Osmania University',  branch:'ECE', refs:5  },
+  { name:'Ananya Singh',     college:'Manipal University',  branch:'CSE', refs:4  },
+];
+
+function buildLeaderboard() {
+  const tbody = document.getElementById('lb-body');
+  let html = '';
+  LB_DATA.forEach((row, i) => {
+    const rank = i + 1;
+    const cls = rank <= 3 ? 'rank-' + rank : 'rank-other';
+    const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+    const rankCell = rank <= 3
+      ? `<span style="font-size:22px;line-height:1;">${medal}</span>`
+      : `<span class="rank-badge rank-other">${rank}</span>`;
+    html += `<tr>
+      <td>${rankCell}</td>
+      <td><strong>${row.name}</strong></td>
+      <td style="color:var(--muted)">${row.college}</td>
+      <td style="color:var(--muted)">${row.branch}</td>
+      <td><strong style="color:var(--accent2)">${row.refs}</strong></td>
+    </tr>`;
+  });
+  tbody.innerHTML = html;
+}
+
+// ── ANALYTICS ─────────────────────────────────────────────────────
+function buildAnalytics() {
+  // Day chart
+  const days = [
+    {d:'D1',n:18},{d:'D2',n:34},{d:'D3',n:52},{d:'D4',n:61},
+    {d:'D5',n:72},{d:'D6',n:0},{d:'D7',n:0}
+  ];
+  const maxN = Math.max(...days.map(d=>d.n));
+  let bars = '', lbls = '';
+  days.forEach(d => {
+    const h = d.n ? Math.max(8, (d.n / maxN) * 76) : 4;
+    const col = d.n === 0 ? 'rgba(255,255,255,0.08)' : '';
+    bars += `<div class="day-bar-wrap">
+      <div class="day-num">${d.n||''}</div>
+      <div class="day-bar" style="height:${h}px;${col?'background:'+col:''}"></div>
+    </div>`;
+    lbls += `<div class="day-lbl" style="flex:1;text-align:center;">${d.d}</div>`;
+  });
+  document.getElementById('day-bars').innerHTML = bars;
+  document.getElementById('day-labels').innerHTML = lbls;
+
+  // Funnel
+  const funnel = [
+    { label:'Landing Page Visitors', val:'2,840' },
+    { label:'Workshop Page Views',   val:'1,620' },
+    { label:'Registrations',         val:'327' },
+    { label:'Students Who Shared',   val:'94' },
+    { label:'Referral Link Clicks',  val:'310' },
+    { label:'Referral Registrations',val:'118' },
+  ];
+  let fhtml = '';
+  funnel.forEach((step, i) => {
+    fhtml += `<div class="funnel-step" style="opacity:${1 - i*0.06};"><span class="f-label">${step.label}</span><span class="f-val">${step.val}</span></div>`;
+    if (i < funnel.length - 1) fhtml += '<div class="funnel-arrow">↓</div>';
+  });
+  document.getElementById('funnel').innerHTML = fhtml;
+}
+
+// ── GROWTH SIMULATOR ──────────────────────────────────────────────
+const SIM_CONTROLS = [
+  { key:'seeders',            label:'Campus Seeders',                min:1,   max:100,  step:1,    default:20   },
+  { key:'regsPerSeeder',      label:'Registrations per Seeder',      min:1,   max:50,   step:1,    default:12   },
+  { key:'shareRate',          label:'Share Rate (%)',                min:1,   max:100,  step:1,    default:40   },
+  { key:'referralsPerSharer', label:'Successful Referrals / Sharer', min:0.1, max:5,    step:0.1,  default:1.5  },
+  { key:'community',          label:'Community / Club Registrations',min:0,   max:300,  step:5,    default:76   },
+  { key:'paid',               label:'Paid (Instagram) Registrations',min:0,   max:200,  step:5,    default:40   },
+];
+
+// simValues stores raw display values — no internal ×100 encoding
+let simValues = { seeders:20, regsPerSeeder:12, shareRate:40, referralsPerSharer:1.5, community:76, paid:40 };
+
+function buildSimulator() {
+  const grid = document.getElementById('sim-controls');
+  let html = '';
+  SIM_CONTROLS.forEach(c => {
+    const val = simValues[c.key];
+    const displayStep = c.key === 'referralsPerSharer' ? '0.1' : c.step;
+    html += `<div class="sim-control">
+      <div class="sim-label">${c.label}</div>
+      <div class="sim-row">
+        <input type="range" class="sim-range" id="range-${c.key}"
+          min="${c.min}" max="${c.max}" step="${displayStep}" value="${val}"
+          oninput="onSimInput('${c.key}',this.value)" />
+        <input type="number" class="sim-num-input" id="num-${c.key}"
+          value="${val}" min="${c.min}" max="${c.max}" step="${displayStep}"
+          oninput="onSimNumInput('${c.key}',this.value)" />
+      </div>
+    </div>`;
+  });
+  grid.innerHTML = html;
+  calcSim();
+}
+
+function onSimInput(key, rawVal) {
+  const v = parseFloat(rawVal);
+  simValues[key] = v;
+  document.getElementById('num-' + key).value = v;
+  calcSim();
+}
+
+function onSimNumInput(key, rawVal) {
+  const ctrl = SIM_CONTROLS.find(c => c.key === key);
+  let v = parseFloat(rawVal);
+  if (isNaN(v)) return;
+  v = Math.min(ctrl.max, Math.max(ctrl.min, v));
+  simValues[key] = v;
+  document.getElementById('range-' + key).value = v;
+  calcSim();
+}
+
+function calcSim() {
+  const { seeders, regsPerSeeder, shareRate, referralsPerSharer, community, paid } = simValues;
+  const direct = Math.round(seeders * regsPerSeeder);
+  const sharers = Math.round(direct * (shareRate / 100));
+  const referralRegs = Math.round(sharers * referralsPerSharer);
+  const total = direct + referralRegs + community + paid;
+
+  const el = document.getElementById('sim-total');
+  const st = document.getElementById('sim-status');
+  el.textContent = total;
+  el.className = 'sim-result-num ' + (total >= 490 && total <= 550 ? 'on-target' : total > 550 ? 'over-target' : 'off-target');
+  if (total >= 500) {
+    st.innerHTML = total <= 550 ? '🎯 Target reached ✓' : '🚀 ' + (total - 500) + ' registrations above target';
+    st.style.color = total <= 550 ? 'var(--success)' : 'var(--accent4)';
+  } else if (total >= 490) {
+    st.innerHTML = '🎯 Target reached ✓ (rounding)';
+    st.style.color = 'var(--success)';
+  } else {
+    st.innerHTML = '⚠️ ' + (500 - total) + ' registrations short';
+    st.style.color = 'var(--danger)';
+  }
+
+  document.getElementById('sim-breakdown').innerHTML = `
+    <div class="sim-line"><span>Campus Seeders × Registrations/Seeder</span><span>${seeders} × ${regsPerSeeder} = ${direct}</span></div>
+    <div class="sim-line"><span>Direct registrations → Sharers (${shareRate}%)</span><span>${direct} × ${shareRate}% = ${sharers} sharers</span></div>
+    <div class="sim-line"><span>Sharers × Referrals/Sharer (${referralsPerSharer})</span><span>${sharers} × ${referralsPerSharer} = ${referralRegs}</span></div>
+    <div class="sim-line"><span>Community / Club registrations</span><span>${community}</span></div>
+    <div class="sim-line"><span>Paid (Instagram) registrations</span><span>${paid}</span></div>
+    <div class="sim-line" style="border-top:1px solid var(--border);margin-top:4px;padding-top:8px;font-weight:800;">
+      <span>Projected Total</span><span style="color:var(--accent)">${direct} + ${referralRegs} + ${community} + ${paid} = ${total}</span>
+    </div>`;
+
+  // Organic vs paid insight
+  const organic = direct + referralRegs + community;
+  const organicPct = total > 0 ? Math.round((organic / total) * 100) : 0;
+  const insightEl = document.getElementById('sim-insight');
+  if (insightEl) {
+    insightEl.innerHTML = `<span style="color:var(--accent2);font-weight:700;">${organic} organic/community</span> | <span style="color:var(--accent4);font-weight:700;">${paid} paid</span> &nbsp;·&nbsp; <strong>${organicPct}% of projected registrations come from organic/community distribution.</strong><br><span style="color:var(--muted);">We're not trying to buy 500 registrations with ₹2,000. We're using ₹2,000 to help activate a distribution loop.</span>`;
+  }
+}
+
+// ── TIMELINE ──────────────────────────────────────────────────────
+const TIMELINE_DATA = [
+  { days:'Days 1–2', phase:'VALIDATE', color:'#6c63ff', icon:'🔬',
+    desc:'Deploy the AI60 Growth Engine. Test two WhatsApp message hooks (direct + FOMO). Recruit 20 campus seeders (tech club leads, CRs, placement reps). Observe share-rate signal before scaling.' },
+  { days:'Days 3–4', phase:'SCALE', color:'#00d4aa', icon:'📡',
+    desc:'Activate campus seeders. Distribute to student communities. Run ₹500 Instagram A/B creative test. Track which acquisition channel converts best.' },
+  { days:'Days 5–6', phase:'REFERRAL PUSH', color:'#ffd166', icon:'🔗',
+    desc:'Push referral milestones (3-referral reward unlocks). Publish leaderboard. Announce top referrers. Allocate ₹500 to scale winning Instagram creative. Referral engine compounds registrations.' },
+  { days:'Day 7', phase:'URGENCY', color:'#ff6b6b', icon:'⏰',
+    desc:'Final push on highest-performing distribution channel. Use urgency messaging: "Last 24 hours." Final leaderboard publish. Reserve ₹300 for top-performing experiment.' },
+];
+
+function buildTimeline() {
+  const tl = document.getElementById('timeline');
+  let html = '';
+  TIMELINE_DATA.forEach(item => {
+    html += `<div class="timeline-item">
+      <div class="tl-icon" style="background:${item.color}22;color:${item.color};">${item.icon}</div>
+      <div class="tl-content">
+        <div class="tl-days" style="color:${item.color};">${item.days}</div>
+        <div class="tl-phase">${item.phase}</div>
+        <div class="tl-desc">${item.desc}</div>
+      </div>
+    </div>`;
+  });
+  tl.innerHTML = html;
+}
+
+// ── REFERRED BY BANNER ─────────────────────────────────────────────
+function checkReferral() {
+  const ref = getUrlParam('ref');
+  if (ref) {
+    const banner = document.getElementById('referred-banner');
+    banner.classList.remove('hidden');
+    document.getElementById('referred-by-code').textContent = decodeURIComponent(ref);
+  }
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+function init() {
+  userData = loadUser();
+  checkReferral();
+  buildLeaderboard();
+  buildAnalytics();
+  buildSimulator();
+  buildTimeline();
+
+  if (userData) {
+    showPostReg();
+    // pre-populate referral dashboard so it's ready when user switches tabs
+    refreshReferralView();
+  } else {
+    // Show not-registered state on referral tab
+    document.getElementById('ref-not-registered').style.display = 'block';
+    document.getElementById('ref-registered').style.display = 'none';
+  }
+}
+
+init();
+</script>
+</body>
+</html>
